@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const dotenv = require('dotenv');
 dotenv.config();
 const cors = require('cors');
@@ -26,9 +26,22 @@ async function run() {
     const db = client.db('upskillodb');
     const coursesCollection = db.collection('courses');
 
+    app.get('/featured-course', async (req, res) => {
+      const cursor = coursesCollection.find().limit(4);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.get('/courses', async (req, res) => {
       const cursor = coursesCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get('/courses/:courseId', async (req, res) => {
+      const { courseId } = req.params;
+      const query = { _id: new ObjectId(courseId) };
+      const result = await coursesCollection.findOne(query);
       res.send(result);
     });
 
